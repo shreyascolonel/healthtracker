@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Health Tracker",
+    "slug": "health-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "healthtracker",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": false,
+    "splash": {
+      "backgroundColor": "#E91E8C"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E91E8C"
+      },
+      "package": "com.home.healthtracker",
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "SCHEDULE_EXACT_ALARM"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "color": "#E91E8C"
+        }
+      ],
+      "expo-asset"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: health-tracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: healthtracker
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: healthtracker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - health-tracker-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U healthtracker -d healthtracker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: ./backend
+    container_name: health-tracker-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgresql://healthtracker:${POSTGRES_PASSWORD:-changeme}@postgres:5432/healthtracker
+      JWT_SECRET: ${JWT_SECRET:-change-this-to-a-long-random-secret}
+      DEFAULT_USER_EMAIL: ${DEFAULT_USER_EMAIL:-wife@home.local}
+      DEFAULT_USER_PASSWORD: ${DEFAULT_USER_PASSWORD:-changeme}
+      DEFAULT_USER_NAME: ${DEFAULT_USER_NAME:-Partner}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    networks:
+      - health-tracker-net
+
+volumes:
+  postgres_data:
+
+networks:
+  health-tracker-net:
+    driver: bridge
