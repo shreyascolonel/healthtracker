@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "scheme": "healthtracker",
     "userInterfaceStyle": "light",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "backgroundColor": "#E91E8C"
     },
@@ -31,7 +31,14 @@
           "color": "#E91E8C"
         }
       ],
-      "expo-asset"
-    ]
+      "expo-asset",
+      "expo-font"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "03fa19c5-54e3-4b6b-ac6d-23bb59942b09"
+      }
+    }
   }
 }
