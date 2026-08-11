@@ -7,8 +7,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSize } from '@/constants/theme';
 import { Button, Input } from './ui';
 import { createRecord } from '@/lib/repository';
@@ -21,6 +23,8 @@ interface AddLogModalProps {
 }
 
 export function AddLogModal({ visible, onClose, onSaved, type }: AddLogModalProps) {
+  const insets = useSafeAreaInsets();
+  const modalBottomPadding = Spacing.lg + Math.max(insets.bottom, Platform.OS === 'android' ? 16 : 0);
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -119,7 +123,7 @@ export function AddLogModal({ visible, onClose, onSaved, type }: AddLogModalProp
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.overlay}>
-        <View style={styles.modal}>
+        <View style={[styles.modal, { paddingBottom: modalBottomPadding }]}>
           <ScrollView showsVerticalScrollIndicator={false}>
             <Text style={styles.title}>{titles[type]}</Text>
 
