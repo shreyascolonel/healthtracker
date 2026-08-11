@@ -25,7 +25,7 @@ A personal health tracking app for Android with offline-first local storage and 
                                           ┌──────────────────┐
                                           │  Docker Compose  │
                                           │  ┌────────────┐  │
-                                          │  │  API :3000 │  │
+                                          │  │  API :5000 │  │
                                           │  └─────┬──────┘  │
                                           │  ┌─────▼──────┐  │
                                           │  │ PostgreSQL │  │
@@ -58,7 +58,7 @@ JWT_SECRET=a-long-random-string-at-least-32-characters
 DEFAULT_USER_EMAIL=wife@home.local
 DEFAULT_USER_PASSWORD=her-secure-password
 DEFAULT_USER_NAME=Her Name
-API_PORT=3000
+API_PORT=5000
 ```
 
 ### 3. Start with Docker Compose
@@ -70,7 +70,7 @@ docker compose up -d --build
 Verify:
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:5000/health
 # {"status":"ok","timestamp":"..."}
 ```
 
@@ -85,11 +85,11 @@ curl http://localhost:3000/health
 | Port | 443 |
 | Destination protocol | HTTP |
 | Hostname | localhost |
-| Port | 3000 |
+| Port | 5000 |
 
 **Nginx:** See `deploy/nginx.conf.example`
 
-**Nginx Proxy Manager:** Add proxy host → Forward to `NAS_IP:3000` with SSL
+**Nginx Proxy Manager:** Add proxy host → Forward to `NAS_IP:5000` with SSL
 
 ### 5. Port forwarding (optional, for remote access)
 
