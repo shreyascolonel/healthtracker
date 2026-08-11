@@ -1,18 +1,41 @@
-import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { getRecords, updateRecord } from './repository';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldShowBanner: true,
-    shouldShowList: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-  }),
-});
+/** Local notifications are not supported in Expo Go (SDK 53+). Use a dev/production build. */
+export function areNotificationsAvailable(): boolean {
+  return Constants.executionEnvironment !== 'storeClient';
+}
+
+async function getNotifications() {
+  return import('expo-notifications');
+}
+
+async function initNotificationHandler(): Promise<void> {
+  if (!areNotificationsAvailable()) return;
+  const Notifications = await getNotifications();
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
+
+let handlerInitialized = false;
 
 export async function requestNotificationPermissions(): Promise<boolean> {
+  if (!areNotificationsAvailable()) return false;
+
+  if (!handlerInitialized) {
+    await initNotificationHandler();
+    handlerInitialized = true;
+  }
+
+  const Notifications = await getNotifications();
   const { status: existing } = await Notifications.getPermissionsAsync();
   if (existing === 'granted') return true;
 
@@ -43,10 +66,10 @@ interface Reminder {
 }
 
 export async function scheduleReminder(reminder: Reminder): Promise<string | null> {
-  if (!reminder.enabled) return null;
+  if (!areNotificationsAvailable() || !reminder.enabled) return null;
 
+  const Notifications = await getNotifications();
   const [hours, minutes] = reminder.time_of_day.split(':').map(Number);
-  const days: number[] = JSON.parse(reminder.days_of_week);
 
   const notificationId = await Notifications.scheduleNotificationAsync({
     content: {
@@ -77,10 +100,15 @@ function getDefaultMessage(type: string): string {
 }
 
 export async function cancelReminder(notificationId: string): Promise<void> {
+  if (!areNotificationsAvailable()) return;
+  const Notifications = await getNotifications();
   await Notifications.cancelScheduledNotificationAsync(notificationId);
 }
 
 export async function rescheduleAllReminders(): Promise<void> {
+  if (!areNotificationsAvailable()) return;
+
+  const Notifications = await getNotifications();
   await Notifications.cancelAllScheduledNotificationsAsync();
 
   const reminders = await getRecords<Reminder>('reminders', 'enabled = 1');
@@ -94,7 +122,10 @@ export async function rescheduleAllReminders(): Promise<void> {
 
 export async function setupDefaultReminders(): Promise<void> {
   const existing = await getRecords('reminders');
-  if (existing.length > 0) return;
+  if (existing.length > 0) {
+    if (areNotificationsAvailable()) await rescheduleAllReminders();
+    return;
+  }
 
   const { createRecord } = await import('./repository');
   const defaults = [

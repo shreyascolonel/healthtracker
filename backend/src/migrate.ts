@@ -1,4 +1,5 @@
-import pool from './db';
+import bcrypt from 'bcryptjs';
+import pool, { waitForDatabase } from './db';
 
 const SCHEMA = `
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -117,7 +118,6 @@ async function migrate() {
 }
 
 async function seedDefaultUser() {
-  const bcrypt = await import('bcryptjs');
   const email = process.env.DEFAULT_USER_EMAIL || 'wife@home.local';
   const password = process.env.DEFAULT_USER_PASSWORD || 'changeme';
   const name = process.env.DEFAULT_USER_NAME || 'Partner';
@@ -137,6 +137,7 @@ async function seedDefaultUser() {
 
 async function main() {
   try {
+    await waitForDatabase();
     await migrate();
     await seedDefaultUser();
   } catch (err) {

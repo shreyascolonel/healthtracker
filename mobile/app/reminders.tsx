@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   Modal,
+  Platform,
 } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,7 +16,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors, Spacing, FontSize } from '@/constants/theme';
 import { Button, Input } from '@/components/ui';
 import { getRecords, createRecord, updateRecord, softDelete } from '@/lib/repository';
-import { rescheduleAllReminders, cancelReminder } from '@/lib/notifications';
+import { rescheduleAllReminders, cancelReminder, areNotificationsAvailable } from '@/lib/notifications';
 
 interface Reminder {
   id: string;
@@ -101,6 +102,16 @@ export default function RemindersScreen() {
       <Text style={styles.title}>Reminders</Text>
       <Text style={styles.subtitle}>Custom alarms for water, food, and more</Text>
 
+      {!areNotificationsAvailable() && (
+        <View style={styles.expoGoBanner}>
+          <Ionicons name="information-circle" size={22} color={Colors.warning} />
+          <Text style={styles.expoGoText}>
+            Alarms don't work in Expo Go. Build an APK with{' '}
+            <Text style={styles.expoGoCode}>eas build --profile preview</Text> for real notifications.
+          </Text>
+        </View>
+      )}
+
       {reminders.map((r) => (
         <View key={r.id} style={styles.reminderCard}>
           <Text style={styles.reminderIcon}>{typeIcon[r.type] || '⏰'}</Text>
@@ -176,6 +187,17 @@ const styles = StyleSheet.create({
   closeBtn: { alignSelf: 'flex-end', padding: 8 },
   title: { fontSize: FontSize.xxl, fontWeight: '700', color: Colors.text },
   subtitle: { fontSize: FontSize.md, color: Colors.textSecondary, marginBottom: Spacing.lg },
+  expoGoBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: '#FFF8E1',
+    borderRadius: 12,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    gap: 10,
+  },
+  expoGoText: { flex: 1, fontSize: FontSize.sm, color: Colors.text, lineHeight: 20 },
+  expoGoCode: { fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace', fontSize: FontSize.sm },
   reminderCard: {
     flexDirection: 'row',
     alignItems: 'center',

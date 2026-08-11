@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import uuid from 'react-native-uuid';
 import { getDatabase, TableName } from './database';
 import type { SQLiteBindValue } from 'expo-sqlite';
 
@@ -17,7 +17,7 @@ export async function createRecord<T extends Record<string, unknown>>(
   data: Omit<T, 'id' | 'created_at' | 'updated_at' | 'synced'>
 ): Promise<T & { id: string }> {
   const db = await getDatabase();
-  const id = uuidv4();
+  const id = uuid.v4() as string;
   const timestamp = now();
   const record = {
     ...data,
